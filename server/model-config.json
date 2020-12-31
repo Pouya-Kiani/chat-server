@@ -14,7 +14,14 @@
     ]
   },
   "User": {
-    "dataSource": "db"
+    "dataSource": "db",
+    "relations": {
+      "Profile": {
+        "type": "hasOne",
+        "model": "Profile",
+        "foreignKey": ""
+      }
+    }
   },
   "AccessToken": {
     "dataSource": "db",
@@ -40,6 +47,10 @@
     "public": true
   },
   "Message": {
+    "dataSource": "db",
+    "public": true
+  },
+  "Profile": {
     "dataSource": "db",
     "public": true
   }
