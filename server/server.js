@@ -12,7 +12,7 @@ const app = module.exports = loopback();
 
 app.start = function() {
   // start the web server
-  return app.listen(function() {
+  return app.listen(8085, function() {
     app.emit('started');
     const baseUrl = app.get('url').replace(/\/$/, '');
     console.log('Web server listening at: %s', baseUrl);
