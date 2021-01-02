@@ -1,8 +1,10 @@
+/* eslint-disable max-len */
 /* eslint-disable strict */
 const WebSocket = require('ws');
 let models = require('./server.js').models;
 
 const ws = new WebSocket.Server({port: 8085});
+const clients = [];
 
 ws.on('connection', (ws) => {
   function login(email, password) {
@@ -22,6 +24,13 @@ ws.on('connection', (ws) => {
                 error: err,
               }));
             } else {
+              const userObject = {
+                id: user.id,
+                email: user.email,
+                ws,
+              };
+              clients.push(userObject);
+              console.log('current clients: ', clients);
               ws.send(JSON.stringify({
                 type: 'LOGGEDIN',
                 data: {
