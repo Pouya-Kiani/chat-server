@@ -78,6 +78,49 @@ ws.on('connection', (ws) => {
             break;
           case 'LOGIN':
             login(requestJson.data.email, requestJson.data.password);
+          case 'SEARCH':
+            const keyword = requestJson.data.keyword;
+            models.User.find({where: {email: {like: keyword}}}, (error, result) => {
+              if (!error && result) {
+                ws.send(JSON.stringify({
+                  type: 'SEARCH_RESULTS',
+                  data: result,
+                }));
+              } else {
+                console.log(error.message);
+                ws.send(JSON.stringify({
+                  type: 'ERROR',
+                  message: error.message,
+                }));
+              };
+            });
+            break;
+          case 'FIND_THREAD':
+            models.Thread.find({where: {
+              and: [
+                {users: {like: requestJson.data[0]}},
+                {users: {like: requestJson.data[1]}},
+              ],
+            },
+            }, (err, thread) => {
+              if (!err && thread) {
+                ws.send(JSON.stringify({
+                  type: 'ADD_THREAD',
+                  data: thread,
+                }));
+              } else if (err) {
+                ws.send(JSON.stringify({
+                  type: 'ERROR',
+                  message: err.message,
+                }));
+              } else {
+                ws.send(JSON.stringify({
+                  type: 'ERROR',
+                  message: 'Unidentifeid Error, please check the server logs',
+                }));
+              }
+            });
+            break;
           default:
             break;
         }
