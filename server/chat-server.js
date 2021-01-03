@@ -96,28 +96,44 @@ ws.on('connection', (ws) => {
             });
             break;
           case 'FIND_THREAD':
-            models.Thread.find({where: {
+            models.Thread.findOne({where: {
               and: [
                 {users: {like: requestJson.data[0]}},
                 {users: {like: requestJson.data[1]}},
               ],
-            },
-            }, (err, thread) => {
-              if (!err && thread) {
-                ws.send(JSON.stringify({
-                  type: 'ADD_THREAD',
-                  data: thread,
-                }));
+            }}, (err, thread) => {
+              if (!err, thread) {
+                // To Do: complete user login function and then remove this!
+                clients.filter(u => thread.users.indexOf(u.id.toString()) > -1).map(client => {
+                  client.ws.send(JSON.stringify({
+                    type: 'ADD_THREAD',
+                    data: thread,
+                  }));
+                });
               } else if (err) {
                 ws.send(JSON.stringify({
                   type: 'ERROR',
                   message: err.message,
                 }));
               } else {
-                ws.send(JSON.stringify({
-                  type: 'ERROR',
-                  message: 'Unidentifeid Error, please check the server logs',
-                }));
+                models.Thread.create({
+                  lastUpdated: new Date(),
+                  users: requestJson.data,
+                }, (err2, thread) => {
+                  if (!err2 && thread) {
+                    clients.filter(u => thread.users.indexOf(u.id.toString()) > -1).map(client => {
+                      client.ws.send(JSON.stringify({
+                        type: 'ADD_THREAD',
+                        data: thread,
+                      }));
+                    });
+                  } else if (err2) {
+                    ws.send(JSON.stringify({
+                      type: 'ERROR',
+                      message: err2.message,
+                    }));
+                  }
+                });
               }
             });
             break;

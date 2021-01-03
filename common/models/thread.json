@@ -7,9 +7,7 @@
   },
   "properties": {
     "lastUpdated": {
-      "type": [
-        "string"
-      ]
+      "type": "date"
     },
     "users": {
       "type": [
