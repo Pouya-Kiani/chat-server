@@ -63,11 +63,7 @@ ws.on('connection', (ws) => {
                 email: user.email,
                 ws,
               };
-              // ToDo: User logout function should clean its tail in the server.
-              // This is to prevent multiple client instances in login. Remove when handled properly.
-              clients = clients.filter(C => C.id.toString() !== user.id.toString());
               clients.push(userObject);
-              console.log('current clients: ', clients, typeof(user.id));
               ws.send(JSON.stringify({
                 type: 'LOGGEDIN',
                 data: {
@@ -150,7 +146,6 @@ ws.on('connection', (ws) => {
                         };
                         getInitialThreads(user.id);
                         clients.push(userObject);
-                        console.log('current clients: ', clients);
                         ws.send(JSON.stringify({
                           type: 'LOGGEDIN',
                           data: {
@@ -236,4 +231,14 @@ ws.on('connection', (ws) => {
       console.log(err);
     };
   }); // ws.on('message');
+  ws.on('close', (req) => {
+    // Remove the disconnected client.
+    clients.filter(C => C.ws._closeCode !== req);
+    console.log('Request Closed: ', req, '\n', 'Current Clients: ', clients);
+  });
+  // Print connected client list, Remove later
+  // function printClients() {
+  //   console.log(clients.length, 'Connected Clients: ', clients.map(C => ({email: C.email, code: C.ws._closeCode})));
+  // }
+  // setInterval(printClients, 5000);
 });
